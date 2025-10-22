@@ -1,0 +1,42 @@
+name: Build and unit and integration tests
+
+on:
+  push:
+    branches: [ "develop", "staging" ]
+
+jobs:
+  # 1. Job за изграждане и модулни тестове (за develop)
+  build_and_unit_tests:
+    if: github.ref_name == 'develop' 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 6.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+      - name: Run Unit Tests
+        run: dotnet test --no-build --filter Category=Unit --verbosity normal
+        
+  # 2. Job за изграждане и интеграционни тестове (за staging)
+  build_and_integration_tests:
+    if: github.ref_name == 'staging'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 6.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+      - name: Run Integration Tests
+        run: dotnet test --no-build --filter Category=Integration --verbosity normal
